@@ -8,7 +8,8 @@ importScripts('https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js')
 // your app's Firebase config object.
 // https://firebase.google.com/docs/web/setup#config-object
 firebase.initializeApp({
-    apiKey: "AIzaSyBX15JEJ4gdNTL5t8vNlnP_L5Wo6O5Xfz0",
+  // Add your key here
+    apiKey: "AI********************************",
     authDomain: "laravel-push-notificatio-f64bc.firebaseapp.com",
     databaseURL: 'https://project-id.firebaseio.com',
     projectId: "laravel-push-notificatio-f64bc",
