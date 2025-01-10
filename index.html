@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PWA - Notification</title>
+    <!-- <link rel="manifest" href="manifest.json"> -->
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" integrity="sha384-xOolHFLEh07PJGoPkLv1IbcEPTNtaed2xpHsD9ESMhqIYd0nLMwNLD69Npy4HI+N" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-Fy6S3B9q64WdZWQUiU+q4/2Lc9npb8tCaSX9FK7E8HnRr0Jz8D6OP9dO5Vg3Q9ct" crossorigin="anonymous"></script>
+</head>
+
+<body>
+
+    <!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          ...
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary">Save changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <button class="click" id="clickMe" onclick="notifyMe()">clikksd</button>
+
+    <!-- HTML file -->
+    <script>
+        if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-work.js')
+            .then(registration => {
+                console.log('Service worker registered:', registration);
+            })
+            .catch(error => {
+                console.error('Service worker registration failed:', error);
+            });
+        });
+        }
+    </script>
+  
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('/firebase-messaging-sw.js')
+                    .then(function (registration) {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(function (err) {
+                        console.error('ServiceWorker registration failed: ', err);
+                    });
+            });
+        }
+    </script>
+
+    <script>
+        // const song = '/bell-notification.mp3';
+        let notification;
+
+        function notifyMe(data) {
+            const options = {
+                title: data.notification.title || 'Default Title', // Default title if not provided
+                body: data.notification.body, // Content 
+                icon: data.notification.image, // Icon path
+                // vibrate: [200, 100, 200],
+                silent:true,
+            };
+
+            if (!("Notification" in window)) {
+                alert("This browser does not support desktop notification");
+                return;
+            }
+
+            if (Notification.permission === "granted") {
+                showNotification(options);
+                // updateBadge(++notificationCount); // Increment badge count
+            } else if (Notification.permission !== "denied") {
+                requestNotificationPermission()
+                    .then(permission => {
+                        if (permission === "granted") {
+                            showNotification(options);
+                            // updateBadge(++notificationCount); // Increment badge count
+                        }
+                    });
+            }
+        }
+
+        function showNotification(options) {
+            if (notification) {
+                notification.close();
+            }
+            
+            notification = new Notification(options.title, options);
+            notification.onshow = function () {
+                // alert('hi');
+                // console.log('babe')
+                playAudio();
+                window.open("/nx/admin/rides/index", "_blank");
+
+                $('#exampleModal').modal('show');
+            };
+            notification.onclose = function () {
+                new Audio(notificationAudio).pause(); // Pause the audio
+                console.log("Notification closed");
+            };
+        }
+
+        let notificationAudio = '/bell-notification.mp3';
+        function initAudio() {
+            notificationAudio = new Audio(notificationAudio);
+        }
+
+        function playAudio() {
+            if (notificationAudio) {
+                notificationAudio.play().catch(function(error) {
+                    console.error("Failed to play audio:", error);
+                });
+            }
+        }
+
+        // Initialize audio when the document is fully loaded
+        document.addEventListener("DOMContentLoaded", function() {
+            initAudio();
+        });
+
+    </script>
+
+    <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
+        import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-messaging.js";
+
+        // Your web app's Firebase configuration
+        // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+        const firebaseConfig = {
+            apiKey: "AIzaSyBX15JEJ4gdNTL5t8vNlnP_L5Wo6O5Xfz0",
+            authDomain: "laravel-push-notificatio-f64bc.firebaseapp.com",
+            projectId: "laravel-push-notificatio-f64bc",
+            storageBucket: "laravel-push-notificatio-f64bc.appspot.com",
+            messagingSenderId: "619998597331",
+            appId: "1:619998597331:web:bbaabd8fca4c1d9cb00426",
+            measurementId: "G-T0XQD3HBTW"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const messaging = getMessaging(app);
+
+        console.log(messaging, 'hi messages')
+
+
+        getToken(messaging, { vapidKey: "BCnh1SLNoKx-lH7O1jdDCh_GLkLJzReWzp9p_fC5Ryd8zPXlDPDUXKHJXQZuOe-S1MP3hbWliRbbdCECQGPsBVk" }).then((currentToken) => {
+            if (currentToken) {
+                console.log('hi', currentToken)
+                // Send the token to your server and update the UI if necessary
+                // ...
+            } else {
+                // Show permission request UI
+                console.log('No registration token available. Request permission to generate one.');
+                // ...
+            }
+        }).catch((err) => {
+            console.log('An error occurred while retrieving token. ', err);
+            // ...
+        });
+
+        onMessage(messaging, (payload) => {
+            console.log('Message received. ', payload);
+            notifyMe(payload);
+        });
+
+        function requestNotificationPermission() {
+            return Notification.requestPermission();
+        }
+
+        let notificationCount = 0; // Initialize badge count
+        function updateBadge(count) {
+            if ('setAppBadge' in navigator) {
+                navigator.setAppBadge(count);
+            }
+        }
+
+        navigator.serviceWorker.addEventListener('message', event => {
+        // Receive messages from the service worker
+            const data = event.data;
+            // alert('asd');
+            console.log('asdsa');
+            if (data.action === 'playAudio') {
+                playAudio();
+            }
+        });
+
+    </script>
+
+    <!-- <script>
+        window.addEventListener('load', () => {
+            registerSW();
+        });
+
+        // Register the Service Worker
+        async function registerSW() {
+            if ('serviceWorker' in navigator) {
+                try {
+                    await navigator
+                        .serviceWorker
+                        .register('serviceworker.js');
+                }
+                catch (e) {
+                    console.log('SW registration failed');
+                }
+            }
+        }
+    </script> -->
+</body>
+
+</html>

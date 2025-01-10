@@ -1,0 +1,1 @@
+This PWA is only for learning purpose about how push notifications works and how to create and desktop PWA
